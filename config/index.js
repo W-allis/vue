@@ -10,7 +10,22 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+        '/api': {  //使用"/api"来代替"http://f.apiplus.c" 
+          target: 'http://10.30.42.200:30120', //源地址 
+          changeOrigin: true, //改变源 
+          pathRewrite: { 
+            '^/api': '' //路径重写 
+            } 
+        }, 
+        '/ss': {  //使用"/api"来代替"http://f.apiplus.c" 
+          target: 'http://192.168.100.12:28080', //源地址 
+          changeOrigin: true, //改变源 
+          pathRewrite: { 
+            '^/ss': '' //路径重写 
+            } 
+        } 
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

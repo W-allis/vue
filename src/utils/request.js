@@ -2,10 +2,15 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import Rx from 'rxjs/Rx'
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/add/observable/of'
+import 'rxjs/add/operator/map'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.BASE_API, // api的base_url
+  // baseURL: process.env.BASE_API, // api的base_url
+  baseURL: 'http://localhost:9527',
   timeout: 5000 // request timeout
 })
 
@@ -24,7 +29,17 @@ service.interceptors.request.use(config => {
 
 // respone interceptor
 service.interceptors.response.use(
-  response => response,
+  response => {
+    Rx.Observable.of(1, 2).subscribe(res => {
+      console.log(res)
+    })
+    Observable.of(1, 2, 3).map(x => {
+      x = x * x
+    }).subscribe(res => {
+      console.log(res)
+    })
+    return response
+  },
   /**
   * 下面的注释为通过response自定义code来标示请求状态，当code返回如下情况为权限有问题，登出并返回到登录页
   * 如通过xmlhttprequest 状态码标识 逻辑可写在下面error中

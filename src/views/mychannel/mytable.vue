@@ -23,64 +23,61 @@
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
       style="width: 100%">
-      <el-table-column align="center" :label="$t('table.id')" width="65">
+      <el-table-column align="center" label="姓名" min-width="85">
         <template slot-scope="scope">
-          <span>{{scope.row.id}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" :label="$t('table.date')">
+      <el-table-column min-width="170px" align="center" label="身份证">
         <template slot-scope="scope">
-          <span>{{scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+          <span>{{scope.row.idNo}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="150px" :label="$t('table.title')">
+      <el-table-column min-width="130px" align="center" label="手机号">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.title}}</span>
-          <el-tag>{{scope.row.type | typeFilter}}</el-tag>
+          <span>{{scope.row.mobile}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="110px" align="center" :label="$t('table.author')">
+      <el-table-column min-width="110px" align="center" label="申请状态">
         <template slot-scope="scope">
-          <span>{{scope.row.author}}</span>
+          <span>{{scope.row.applyStatus}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="110px" v-if='showReviewer' align="center" :label="$t('table.reviewer')">
+      <el-table-column min-width="110px" align="center" label="还款状态">
         <template slot-scope="scope">
-          <span style='color:red;'>{{scope.row.reviewer}}</span>
+          <span style='color:red;'>{{scope.row.loanStatus}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" :label="$t('table.importance')">
+      <el-table-column min-width="110px" align="center" label="申请日期">
         <template slot-scope="scope">
-          <svg-icon v-for="n in +scope.row.importance" icon-class="star" class="meta-item__icon" :key="n"></svg-icon>
+          <span>{{scope.row.applyDate | parseTime(scope.row.applyDate,'{y}/{m}/{d} {h}:{i}:{s}')}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.readings')" width="95">
+      <el-table-column align="center" label="还款日期" min-width="110">
         <template slot-scope="scope">
-          <span v-if="scope.row.pageviews" class="link-type" @click='handleFetchPv(scope.row.pageviews)'>{{scope.row.pageviews}}</span>
-          <span v-else>0</span>
+          <span>{{scope.row.payDate}}</span>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.status')" width="100">
+      <el-table-column class-name="status-col" label="借款金额" min-width="100">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+          <span>{{scope.row.loanAmount}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
+      <el-table-column class-name="status-col" label="期数" min-width="100">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button v-if="scope.row.status!='published'" size="mini" type="success" @click="handleModifyStatus(scope.row,'published')">{{$t('table.publish')}}
-          </el-button>
-          <el-button v-if="scope.row.status!='draft'" size="mini" @click="handleModifyStatus(scope.row,'draft')">{{$t('table.draft')}}
-          </el-button>
-          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{$t('table.delete')}}
-          </el-button>
+          <span>{{scope.row.allInstallment}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="更多操作" width="230" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <router-link style='color:blue;' to="">申请详情</router-link>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
-        :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        :page-sizes="[15,10,20,30, 50]" :page-size="shjlistQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -134,7 +131,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { fetchList, fetchPv, createArticle, updateArticle, shjres } from '@/api/article'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 
@@ -169,6 +166,19 @@ export default {
         title: undefined,
         type: undefined,
         sort: '+id'
+      },
+      shjlistQuery: {
+        name: '',
+        idNo: '',
+        mobile: '',
+        orderStatus: '',
+        loanStatus: '',
+        applyStartDate: '',
+        applyEndDate: '',
+        payStartDate: '',
+        payEndDate: '',
+        pageSize: 15,
+        pageNo: 1
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
@@ -215,26 +225,37 @@ export default {
   },
   created() {
     this.getList()
+    // this.getss()
   },
   methods: {
+    getss() {
+      var sdata = {
+        username: 'box',
+        password: '123456'
+      }
+      shjres(sdata).then(res => {
+        console.log(res)
+      })
+    },
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+      // fetchList(this.listQuery).then(response => {
+      fetchList(this.shjlistQuery).then(response => {
+        this.list = response.data.data.orderList
+        this.total = response.data.data.totalCount
         this.listLoading = false
       })
     },
     handleFilter() {
-      this.listQuery.page = 1
+      this.shjlistQuery.pageNo = 1
       this.getList()
     },
     handleSizeChange(val) {
-      this.listQuery.limit = val
+      this.shjlistQuery.pageSize = val
       this.getList()
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
+      this.shjlistQuery.pageNo = val
       this.getList()
     },
     handleModifyStatus(row, status) {

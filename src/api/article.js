@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchList(query) {
   return request({
-    url: '/article/list',
+    url: '/api/admin/order/search',
     method: 'get',
     params: query
   })
@@ -34,6 +34,15 @@ export function createArticle(data) {
 export function updateArticle(data) {
   return request({
     url: '/article/update',
+    method: 'post',
+    data
+  })
+}
+
+export function shjres(data) {
+  // http://192.168.100.12:28080
+  return request({
+    url: '/ss/api/jwt/auth',
     method: 'post',
     data
   })

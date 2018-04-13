@@ -1,0 +1,24 @@
+{
+  "/api": {
+    "target": "http://192.168.1.135:9500",
+    "secure": false,
+    "pathRewrite": {"^/api" : ""}
+  },
+  "/md":{
+    "target":"http://10.30.42.200:32345",
+    "secure":false,
+    "pathRewrite":{"^/md":""}
+  },
+  "/login":{
+    "target":"http://10.30.42.200:32345",
+    "secure":false,
+    "pathRewrite":{"^/login":""}
+  },
+  "/search":{
+    "target":"http://10.30.42.200:30120",
+    "secure":false,
+    "pathRewrite":{"^/search":""}
+  },
+  "changeOrigin": true,
+  "logLevel": "debug"
+}
